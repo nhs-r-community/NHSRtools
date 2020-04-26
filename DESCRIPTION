@@ -1,0 +1,25 @@
+Package: NHSRtools
+Title: NHS-R Tools
+Version: 0.0.0.9000
+Authors@R: c(
+    person(given = "Tom",
+           family = "Jemmett",
+           role = c("aut", "cre"),
+           email = "thomas.jemmett@nhs.net",
+           comment = c(ORCID = "0000-0002-6943-2990")),
+    person("NHS-R community", role = "cph")
+    )
+Description: Provides tools commonly used by Analysts within the NHS.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Depends: R (>= 3.5.0)
+BugReports: https://github.com/nhs-r-community/NHSRtools
+Suggests:
+    devtools,
+    mockery,
+    roxygen2,
+    testthat,
+    usethis
