@@ -236,6 +236,38 @@ test_that("it pages if there are more than LIMIT results", {
   expect_called(m$content, 2)
 })
 
+
+test_that("it fails if during paging there is a status other than 200", {
+  # LIMIT is set to 1000, the current max supported by the API
+  sample_data <- tibble::tribble(
+    ~name, ~org_id, ~status,
+    "A",   1,       "active",
+    "B",   2,       "inactive"
+  ) %>%
+    dplyr::mutate(rep = list(1:750)) %>%
+    tidyr::unnest_longer(col = rep)
+
+  m <- list(
+    "GET" = mock("data", cycle = TRUE),
+    "status_code" = mock(200, 400, cycle = TRUE),
+    "headers" = mock(
+      list("x-total-count" = nrow(sample_data))
+    ),
+    "content" = mock(
+      list("Organisations" = sample_data %>% dplyr::filter(rep <= 500)),
+      list("Organisations" = sample_data %>% dplyr::filter(rep >  500))
+    )
+  )
+  do.call(with_mock, c(m, .env = "httr", expr({
+    expect_error( ods_get_organisations(name = "A") )
+  })))
+
+  expect_called(m$GET, 2)
+  expect_called(m$status_code, 2)
+  expect_called(m$headers, 1)
+  expect_called(m$content, 1)
+})
+
 test_that("it calls janitor::clean_names", {
   m <- mock()
   with_mock("clean_names" = m, .env = "janitor",
