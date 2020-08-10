@@ -100,12 +100,9 @@ test_that("last_change_date argument gets appended to the URL", {
 
 test_that("status argument must be a valid value", {
   mock_ods_get_organisations({
-    expect_error({ ods_get_organisations(status = "") },
-                 "^'arg' should be one of \"NA\", \"active\", \"inactive\"$")
-    expect_error({ ods_get_organisations(status = "other") },
-                 "^'arg' should be one of \"NA\", \"active\", \"inactive\"$")
-    expect_error({ ods_get_organisations(status = 1) },
-                 "^'arg' must be NULL or a character vector$")
+    expect_error({ ods_get_organisations(status = "") })
+    expect_error({ ods_get_organisations(status = "other") })
+    expect_error({ ods_get_organisations(status = 1) })
     expect_error({ ods_get_organisations(status = c("active", "inactive")) },
                  "^'arg' must be of length 1$")
 
