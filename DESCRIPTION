@@ -1,6 +1,6 @@
 Package: NHSRtools
 Title: NHS-R Tools
-Version: 0.0.0.9000
+Version: 0.0.0.9001
 Authors@R: c(
     person(given = "Tom",
            family = "Jemmett",
@@ -17,9 +17,20 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Depends: R (>= 3.5.0)
 BugReports: https://github.com/nhs-r-community/NHSRtools
+Imports: 
+    dplyr,
+    httr,
+    janitor,
+    lubridate,
+    rlang,
+    stringr
 Suggests:
     devtools,
+    magrittr,
     mockery,
+    purrr,
     roxygen2,
     testthat,
+    tibble,
+    tidyr,
     usethis
