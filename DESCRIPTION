@@ -25,6 +25,7 @@ Imports:
     rlang,
     stringr
 Suggests:
+    covr,
     devtools,
     magrittr,
     mockery,
