@@ -66,8 +66,7 @@ ods_get_organisations <- function(name = as.character(NA),
                                   non_primary_role_id = as.character(NA),
                                   org_record_class = as.character(NA)) {
   # limit of number of rows we can get at any time
-  # make sure that this is an integer in the range [0, 1000]
-  LIMIT <- max(0, min(1000, as.integer(ODS_API_RESULTS_LIMIT)))
+  LIMIT <- ods_api_results_limit()
 
   # url is built up of api and the parameters. We need to keep a copy of the
   # initial url to compare to later: the api will fail to run if no parameters

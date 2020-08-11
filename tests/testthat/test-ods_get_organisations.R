@@ -236,6 +236,25 @@ test_that("it pages if there are more than LIMIT results", {
   expect_called(m$content, 2)
 })
 
+test_that("it allows you to change the limit", {
+  m <- mock(1, 25, 50)
+
+  m_httr <- mock_ods_get_organisations({
+    with_mock("ods_api_results_limit" = m,
+              ods_get_organisations(name = "A"),
+              ods_get_organisations(name = "A"),
+              ods_get_organisations(name = "A"))
+  })
+
+  expect_called(m, 3)
+  expect_called(m_httr$GET, 3)
+  expect_args(m_httr$GET, 1,
+              paste0(ODS_API_ENDPOINT, "organisations?Limit=1&Name=A"))
+  expect_args(m_httr$GET, 2,
+              paste0(ODS_API_ENDPOINT, "organisations?Limit=25&Name=A"))
+  expect_args(m_httr$GET, 3,
+              paste0(ODS_API_ENDPOINT, "organisations?Limit=50&Name=A"))
+})
 
 test_that("it fails if during paging there is a status other than 200", {
   # LIMIT is set to 1000, the current max supported by the API
