@@ -25,13 +25,13 @@
 #' @return a tibble of organisations
 #' @export
 #'
+#' @importFrom assertthat assert_that is.scalar is.string is.date
 #' @importFrom dplyr bind_rows coalesce
 #' @importFrom httr GET status_code headers content
 #' @importFrom janitor clean_names
-#' @importFrom lubridate is.Date
 #' @importFrom rlang enexpr
 #' @importFrom stringr str_starts
-#' @importFrom utils URLencode
+#' @importFrom utils tail URLencode
 #'
 #' @examples
 #' \dontrun{
@@ -75,50 +75,50 @@ ods_get_organisations <- function(name = as.character(NA),
 
   # argument checking ==========================================================
 
-  # helper to validate arguments
-  arg_check <- function(arg, type = is.character) {
+  # helper to validate arguments and update the url variable
+  arg_check <- function(arg, is.type = is.string) {
     # get the name of the argument
     arg_name <- as.character(substitute(arg))
 
-    # get the name of the type, keeping only the bits after the "."
-    type_name <- tolower(as.character(substitute(type)))
-    # if the name of type is namespaced, e.g. lubridate::date then we only want
-    # to keep the last part of the type_name variable
-    type_name <- gsub("^.*\\.", "", type_name[[length(type_name)]])
+    # extract the "type" from the is.type function. This function should be of
+    # the like "is.character" or "assertthat::is.string".
+    type_name <- gsub("^is\\.([^.]*)$",
+                      "\\L\\1",
+                      tail(as.character(substitute(is.type)), 1),
+                      perl = TRUE)
+
+    assert_that(is.scalar(arg),
+                msg = paste(arg_name, "argument must be a single value"))
+    assert_that(is.type(arg),
+                msg = paste(arg_name, "argument must be of type", type_name))
 
     # if the argument values are NA's then return
-    if (!all(is.na(arg))) {
-      # check that the argument is the correct type
-      if (!type(arg)) {
-        stop(arg_name, " argument must be of type ", type_name)
-      }
-      # check that we only have one value
-      if (length(arg) > 1) {
-        stop(arg_name, " argument must be a single value")
-      }
-      # check that if arg is a character it's not an empty string
-      if (type_name == "character" & grepl("^\\s*$", arg)) {
-        stop(arg_name, " argument must not be an empty string")
-      }
+    if (is.na(arg)) return (NULL)
 
-      # if we are working with a date then make sure the value is formatted
-      # correctly
-      if (type_name == "date") {
-        arg <- format(arg, "%Y-%m-%d")
-      }
-      # this will convert to title case from snake case, needed for the URL
-      arg_name <- gsub("(?:^|_)(.)", "\\U\\1", arg_name, perl = TRUE)
-      # update the url in the parent environment
-      url <<- paste0(url, "&", arg_name, "=", utils::URLencode(arg))
+    # if arg is a string, make sure it's not empty (or whitespace)
+    if (type_name == "string") {
+      assert_that(!grepl("^\\s*$", arg),
+                  msg = paste(arg_name, "argument must not be an empty string"))
     }
-    invisible(NULL)
+
+    # if we are working with a date then make sure the value is formatted
+    # correctly
+    if (type_name == "date") {
+      arg <- format(arg, "%Y-%m-%d")
+    }
+    # this will convert to title case from snake case, needed for the URL
+    arg_name <- gsub("(?:^|_)(.)", "\\U\\1", arg_name, perl = TRUE)
+    # update the url in the parent environment
+    url <<- paste0(url, "&", arg_name, "=", utils::URLencode(arg))
+
+    NULL
   }
 
   status <- match.arg(status)
 
   arg_check(name)
   arg_check(post_code)
-  arg_check(last_change_date, lubridate::is.Date)
+  arg_check(last_change_date, is.date)
   arg_check(status) # only call arg_check on status to update url
   arg_check(primary_role_id)
   arg_check(non_primary_role_id)

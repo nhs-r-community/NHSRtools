@@ -20,12 +20,12 @@ mock_ods_get_organisations <- function(..., status_code = c(200)) {
 }
 
 # arguments ----
-test_that("name input must be a single character or NA", {
+test_that("name input must be a single string or NA", {
   mock_ods_get_organisations({
     expect_error({ ods_get_organisations(name = 1) },
-                 "^name argument must be of type character$")
+                 "^name argument must be of type string$")
     expect_error({ ods_get_organisations(name = TRUE) },
-                 "^name argument must be of type character$")
+                 "^name argument must be of type string$")
     expect_error({ ods_get_organisations(name = c("1", "2")) },
                  "^name argument must be a single value$")
     expect_error({ ods_get_organisations(name = "") },
@@ -49,7 +49,7 @@ test_that("name argument gets appended to the URL", {
 test_that("post_code argument must be a valid value", {
   mock_ods_get_organisations({
     expect_error({ ods_get_organisations(post_code = 1) },
-                 "^post_code argument must be of type character$")
+                 "^post_code argument must be of type string$")
     expect_error({ ods_get_organisations(post_code = "AA") },
                  "^post_code argument must be at least a district, e.g. AA1$")
     expect_error({ ods_get_organisations(post_code = c("AA1", "AA2")) },
@@ -125,7 +125,7 @@ test_that("status argument gets appended to the URL", {
 test_that("primary_role_id argument must be a valid value", {
   mock_ods_get_organisations({
     expect_error({ ods_get_organisations(primary_role_id = 1) },
-                 "^primary_role_id argument must be of type character$")
+                 "^primary_role_id argument must be of type string$")
     expect_error({ ods_get_organisations(primary_role_id = c("a", "b")) },
                  "^primary_role_id argument must be a single value$")
     expect_error({ ods_get_organisations(primary_role_id = "") },
@@ -149,7 +149,7 @@ test_that("primary_role_id argument gets appended to the URL", {
 test_that("non_primary_role_id argument must be a valid value", {
   mock_ods_get_organisations({
     expect_error({ ods_get_organisations(non_primary_role_id = 1) },
-                 "^non_primary_role_id argument must be of type character$")
+                 "^non_primary_role_id argument must be of type string$")
     expect_error({ ods_get_organisations(non_primary_role_id = c("a", "b")) },
                  "^non_primary_role_id argument must be a single value$")
     expect_error({ ods_get_organisations(non_primary_role_id = "") },
