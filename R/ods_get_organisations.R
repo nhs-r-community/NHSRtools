@@ -25,7 +25,7 @@
 #' @return a tibble of organisations
 #' @export
 #'
-#' @importFrom dplyr bind_rows
+#' @importFrom dplyr bind_rows coalesce
 #' @importFrom httr GET status_code headers content
 #' @importFrom janitor clean_names
 #' @importFrom lubridate is.Date
@@ -76,14 +76,7 @@ ods_get_organisations <- function(name = as.character(NA),
   # argument checking ==========================================================
 
   # helper to validate arguments
-  arg_check <- function(arg, type = is.character, other_checks = NULL) {
-    # we need to evaluate in the parent frame, e.g. in the ods_get_organisations
-    # function call
-    env <- parent.frame()
-
-    # capture the "other_checks" argument as an expression
-    other_checks <- rlang::enexpr(other_checks)
-
+  arg_check <- function(arg, type = is.character) {
     # get the name of the argument
     arg_name <- as.character(substitute(arg))
 
@@ -107,21 +100,16 @@ ods_get_organisations <- function(name = as.character(NA),
       if (type_name == "character" & grepl("^\\s*$", arg)) {
         stop(arg_name, " argument must not be an empty string")
       }
-      # run any other_checks if there are any
-      if (!is.null(other_checks)) {
-        eval(other_checks, envir = env)
-      }
 
       # if we are working with a date then make sure the value is formatted
       # correctly
       if (type_name == "date") {
         arg <- format(arg, "%Y-%m-%d")
       }
-
       # this will convert to title case from snake case, needed for the URL
       arg_name <- gsub("(?:^|_)(.)", "\\U\\1", arg_name, perl = TRUE)
       # update the url in the parent environment
-      env$url <- paste0(env$url, "&", arg_name, "=", utils::URLencode(arg))
+      url <<- paste0(url, "&", arg_name, "=", utils::URLencode(arg))
     }
     invisible(NULL)
   }
@@ -129,15 +117,15 @@ ods_get_organisations <- function(name = as.character(NA),
   status <- match.arg(status)
 
   arg_check(name)
-  arg_check(post_code, other_checks = {
-    if (!stringr::str_starts(post_code, "\\w{1,2}\\d")) {
-      stop ("post_code argument must be at least a district, e.g. AA1")
-    }
-  })
+  arg_check(post_code)
   arg_check(last_change_date, lubridate::is.Date)
   arg_check(status) # only call arg_check on status to update url
   arg_check(primary_role_id)
   arg_check(non_primary_role_id)
+
+  if (dplyr::coalesce(!stringr::str_starts(post_code, "\\w{1,2}\\d"), FALSE)) {
+    stop ("post_code argument must be at least a district, e.g. AA1")
+  }
 
   # checked all arguments ======================================================
 
