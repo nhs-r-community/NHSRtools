@@ -6,6 +6,7 @@
 #' @importFrom purrr map_dfr
 #' @importFrom readr read_csv
 #' @importFrom lubridate ymd
+#' @export
 ods_get_successors <- function() {
   # create a temporary file
   tf <- tempfile(fileext = ".zip")
