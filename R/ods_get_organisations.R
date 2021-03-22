@@ -144,7 +144,7 @@ ods_get_organisations <- function(name = as.character(NA),
   }
 
   # find out how many records there are in total to load
-  total_count <- httr::headers(res)[["x-total-count"]]
+  total_count <- as.numeric(httr::headers(res)[["x-total-count"]])
 
   # convert the results into a tibble
   organisations <- dplyr::bind_rows(httr::content(res)[["Organisations"]])
